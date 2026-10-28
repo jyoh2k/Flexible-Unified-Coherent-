@@ -1,0 +1,53 @@
+function mapperout = PAMMapper ( mapperin,  params, T) 
+
+%  Usage      : mapperout = PAMMapper ( mapperin,  params, T);
+%  Function   :
+%     1.   PAM mapping (Gray coding)    
+%  Author     : Rha, Hae Young.
+%  Contact    : hyrha@miroandi.com   
+%  Known bugs :
+
+    num_bps = params.Nbitspersymbol ;
+    
+    if ( mod( size(mapperin,2), num_bps  ) ~= 0 )
+        error(' The number of bits  should be the integer multiples of params.Nbitpersymbol ');
+    end
+
+    if ( num_bps == 2 ) 
+        mapper1 = mapperin(:, 1:2:size(mapperin,2)) * 2 + ...
+                              (mapperin(:, 2:2:size(mapperin,2))   );
+        mapper2 = (1-2* ( (mapper1) < 2 )) .* ( mod ( mapper1+1, 2) *2 + 1 );
+    end
+    if ( num_bps == 3 ) 
+        mapper1  = mapperin(:,1:3:end) * 4 + mapperin(:,2:3:end)*2 + ...
+                   mapperin(:,3:3:end);
+        mapper2  = (mapper1  == 0)* -7 + (mapper1  == 1)* -5 ...
+                 + (mapper1  == 3)* -3 + (mapper1  == 2)* -1 ...
+                 + (mapper1  == 6)*  1 + (mapper1  == 7)*  3 ...
+                 + (mapper1  == 5)*  5 + (mapper1  == 4)*  7;
+
+        non_gray_mapper =  (mapper1 == 0)* -1 + (mapper1 == 1)* -3 ...
+                         + (mapper1 == 2)* -5 + (mapper1 == 3)* -7 ...
+                         + (mapper1 == 4)*  1 + (mapper1 == 5)*  3 ...
+                         + (mapper1 == 6)*  5 + (mapper1 == 7)*  7; 
+
+        if ( params.GrayMap == 0 )
+            mapper2 = non_gray_mapper;
+        end
+    end
+
+    if ( num_bps == 4 ) 
+        mapper1  = mapperin(:,1:4:end) * 8 + mapperin(:,2:4:end) * 4 + ...
+                           mapperin(:,3:4:end) * 2 + mapperin(:,4:4:end);
+        mapper2  = (mapper1  ==  0)* -15 + (mapper1  ==  1)* -13 ...
+                 + (mapper1  ==  3)* -11 + (mapper1  ==  2)*  -9 ...
+                 + (mapper1  ==  6)* -7  + (mapper1  ==  7)*  -5 ...
+                 + (mapper1  ==  5)* -3  + (mapper1  ==  4)*  -1 ...
+                 + (mapper1  == 12)*  1  + (mapper1  == 13)*   3 ...
+                 + (mapper1  == 15)*  5  + (mapper1  == 14)*   7 ...
+                 + (mapper1  == 10)*  9  + (mapper1  == 11)*  11 ...
+                 + (mapper1  ==  9)*  13 + (mapper1  ==  8)*  15;
+
+    end
+     mapperout   =  mapper2 ;  
+end
